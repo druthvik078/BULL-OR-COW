@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Multiplayer Bulls and Cows</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      padding: 30px;
+    }
+    h1 {
+      color: #444;
+    }
+    .section {
+      margin: 20px 0;
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+      margin: 5px;
+    }
+    .log {
+      text-align: left;
+      max-width: 500px;
+      margin: 20px auto;
+      background: #fff;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    .winner {
+      font-weight: bold;
+      color: green;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🐂 Bulls and 🐄 Cows - Multiplayer</h1>
+
+<div class="section">
+  <p><strong>Player 1:</strong> Set your secret number</p>
+  <input type="password" id="secret1" maxlength="4">
+</div>
+
+<div class="section">
+  <p><strong>Player 2:</strong> Set your secret number</p>
+  <input type="password" id="secret2" maxlength="4">
+</div>
+
+<button onclick="startGame()">Start Game</button>
+
+<div class="section" id="gameArea" style="display:none;">
+  <h3 id="turnTitle">Player 1's Turn</h3>
+  <input type="text" id="guess" maxlength="4" placeholder="Enter your guess">
+  <button onclick="submitGuess()">Guess</button>
+
+  <div id="result"></div>
+  <div class="log" id="log"></div>
+</div>
+
+<script>
+  let secret1 = '', secret2 = '';
+  let currentPlayer = 1;
+  let gameStarted = false;
+
+  function startGame() {
+    secret1 = document.getElementById("secret1").value.trim();
+    secret2 = document.getElementById("secret2").value.trim();
+
+    if (!isValidSecret(secret1) || !isValidSecret(secret2)) {
+      alert("Both players must enter valid 4-digit numbers with unique digits.");
+      return;
+    }
+
+    document.getElementById("gameArea").style.display = "block";
+    document.getElementById("result").innerText = '';
+    document.getElementById("log").innerText = '';
+    gameStarted = true;
+  }
+
+  function isValidSecret(secret) {
+    return /^\d{4}$/.test(secret) && new Set(secret).size === 4;
+  }
+
+  function submitGuess() {
+    if (!gameStarted) return;
+
+    let guess = document.getElementById("guess").value.trim();
+    if (!/^\d{4}$/.test(guess) || new Set(guess).size !== 4) {
+      document.getElementById("result").innerText = "Enter a valid 4-digit number with unique digits.";
+      return;
+    }
+
+    let opponentSecret = currentPlayer === 1 ? secret2 : secret1;
+    let bulls = 0, cows = 0;
+
+    for (let i = 0; i < 4; i++) {
+      if (guess[i] === opponentSecret[i]) {
+        bulls++;
+      } else if (opponentSecret.includes(guess[i])) {
+        cows++;
+      }
+    }
+
+    const log = document.getElementById("log");
+    const logEntry = document.createElement("div");
+    logEntry.textContent = `Player ${currentPlayer} guessed: ${guess} - 🐂 Bulls: ${bulls}, 🐄 Cows: ${cows}`;
+    log.prepend(logEntry);
+
+    if (bulls === 4) {
+      document.getElementById("result").innerHTML = `<span class="winner">🎉 Player ${currentPlayer} wins! The secret was ${opponentSecret}</span>`;
+      gameStarted = false;
+      return;
+    }
+
+    currentPlayer = currentPlayer === 1 ? 2 : 1;
+    document.getElementById("turnTitle").innerText = `Player ${currentPlayer}'s Turn`;
+    document.getElementById("guess").value = '';
+    document.getElementById("result").innerText = '';
+  }
+</script>
+
+</body>
+</html>
