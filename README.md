@@ -2,175 +2,161 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bulls and Cows with Names & Timer</title>
+  <title>Bulls and Cows Setup</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f9f9f9;
-      text-align: center;
-      padding: 30px;
-    }
-    h1 {
-      color: #444;
-    }
-    .section {
-      margin: 20px 0;
-    }
-    input, button {
-      padding: 10px;
-      font-size: 16px;
-      margin: 5px;
-    }
-    .log {
-      text-align: left;
-      max-width: 500px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 15px;
-      border-radius: 5px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .winner {
-      font-weight: bold;
-      color: green;
-    }
-    #timer {
-      font-size: 18px;
-      color: red;
-      margin-top: 10px;
-    }
+    body { font-family: Arial; text-align: center; padding: 40px; background: #f0f0f0; }
+    input { padding: 10px; font-size: 16px; margin: 10px; }
+    button { padding: 10px 20px; font-size: 18px; }
   </style>
 </head>
 <body>
 
-<h1>🐂 Bulls and 🐄 Cows - Multiplayer + Timer</h1>
+  <h1>🎮 Bulls and Cows Game Setup</h1>
 
-<div class="section">
-  <p><strong>Player 1 Name:</strong></p>
-  <input type="text" id="name1" placeholder="Enter name">
-  <p><strong>Player 1 Secret Number:</strong></p>
-  <input type="password" id="secret1" maxlength="4" placeholder="4-digit secret">
-</div>
+  <label><strong>Digit Length (3-6):</strong></label><br>
+  <input type="number" id="length" value="4" min="3" max="6"><br><br>
 
-<div class="section">
-  <p><strong>Player 2 Name:</strong></p>
-  <input type="text" id="name2" placeholder="Enter name">
-  <p><strong>Player 2 Secret Number:</strong></p>
-  <input type="password" id="secret2" maxlength="4" placeholder="4-digit secret">
-</div>
+  <label><strong>Player 1 Name:</strong></label><br>
+  <input type="text" id="name1" placeholder="Player 1"><br><br>
 
-<button onclick="startGame()">Start Game</button>
+  <label><strong>Player 2 Name:</strong></label><br>
+  <input type="text" id="name2" placeholder="Player 2"><br><br>
 
-<div class="section" id="gameArea" style="display:none;">
-  <h3 id="turnTitle">Player 1's Turn</h3>
-  <div id="timer">Time Left: 20s</div>
-  <input type="text" id="guess" maxlength="4" placeholder="Enter your guess">
-  <button onclick="submitGuess()">Guess</button>
+  <button onclick="start()">Continue</button>
 
-  <div id="result"></div>
-  <div class="log" id="log"></div>
-</div>
+  <script>
+    function start() {
+      const len = parseInt(document.getElementById("length").value);
+      const name1 = document.getElementById("name1").value || "Player 1";
+      const name2 = document.getElementById("name2").value || "Player 2";
 
-<script>
-  let secret1 = '', secret2 = '';
-  let name1 = '', name2 = '';
-  let currentPlayer = 1;
-  let gameStarted = false;
-  let timer, timeLeft = 20;
-
-  function isValidSecret(secret) {
-    return /^\d{4}$/.test(secret) && new Set(secret).size === 4;
-  }
-
-  function startGame() {
-    secret1 = document.getElementById("secret1").value.trim();
-    secret2 = document.getElementById("secret2").value.trim();
-    name1 = document.getElementById("name1").value.trim() || "Player 1";
-    name2 = document.getElementById("name2").value.trim() || "Player 2";
-
-    if (!isValidSecret(secret1) || !isValidSecret(secret2)) {
-      alert("Both players must enter valid 4-digit numbers with unique digits.");
-      return;
-    }
-
-    document.getElementById("gameArea").style.display = "block";
-    document.getElementById("turnTitle").innerText = `${name1}'s Turn`;
-    document.getElementById("result").innerText = '';
-    document.getElementById("log").innerText = '';
-    gameStarted = true;
-    startTimer();
-  }
-
-  function startTimer() {
-    clearInterval(timer);
-    timeLeft = 20;
-    document.getElementById("timer").innerText = `Time Left: ${timeLeft}s`;
-    timer = setInterval(() => {
-      timeLeft--;
-      document.getElementById("timer").innerText = `Time Left: ${timeLeft}s`;
-      if (timeLeft <= 0) {
-        clearInterval(timer);
-        autoPassTurn();
+      if (len < 3 || len > 6) {
+        alert("Digit length must be between 3 and 6.");
+        return;
       }
-    }, 1000);
-  }
 
-  function autoPassTurn() {
-    let currentName = currentPlayer === 1 ? name1 : name2;
-    const log = document.getElementById("log");
-    const logEntry = document.createElement("div");
-    logEntry.textContent = `${currentName} ran out of time! Turn skipped.`;
-    log.prepend(logEntry);
-    switchTurn();
-  }
+      localStorage.setItem("digitLength", len);
+      localStorage.setItem("name1", name1);
+      localStorage.setItem("name2", name2);
+      localStorage.removeItem("secret1");
+      localStorage.removeItem("secret2");
+      localStorage.setItem("turn", "1");
 
-  function submitGuess() {
-    if (!gameStarted) return;
+      window.location.href = "player1.html";
+    }
+  </script>
 
-    let guess = document.getElementById("guess").value.trim();
-    if (!/^\d{4}$/.test(guess) || new Set(guess).size !== 4) {
-      document.getElementById("result").innerText = "Enter a valid 4-digit number with unique digits.";
-      return;
+</body>
+</html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Player 1 Turn</title>
+  <style>
+    body { font-family: Arial; padding: 30px; text-align: center; background: #eef; }
+    .hidden { display: none; }
+    input, button { padding: 10px; font-size: 16px; margin: 5px; }
+  </style>
+</head>
+<body>
+
+  <h2>👤 Player 1 Page</h2>
+  <p id="nameLabel"></p>
+
+  <div id="secretArea">
+    <p>Enter your secret (e.g., 1 3 5 7):</p>
+    <input type="text" id="secretInput" placeholder="space-separated digits">
+    <button onclick="saveSecret()">Submit Secret</button>
+  </div>
+
+  <div id="gameArea" class="hidden">
+    <h3>Guess Player 2's Secret</h3>
+    <p>Time left: <span id="timer">20</span>s</p>
+    <input type="text" id="guessInput" placeholder="Your guess">
+    <button onclick="submitGuess()">Submit Guess</button>
+    <div id="result"></div>
+    <div id="log"></div>
+  </div>
+
+  <script>
+    const name1 = localStorage.getItem("name1");
+    const name2 = localStorage.getItem("name2");
+    const digitLength = parseInt(localStorage.getItem("digitLength"));
+
+    document.getElementById("nameLabel").textContent = `Hello, ${name1}!`;
+
+    let timer, timeLeft = 20;
+
+    function parseInput(str) {
+      return str.trim().split(/\s+/).map(Number);
     }
 
-    clearInterval(timer);
+    function isValid(arr) {
+      return arr.length === digitLength &&
+        new Set(arr).size === digitLength &&
+        arr.every(n => n >= 1 && n <= 9);
+    }
 
-    let opponentSecret = currentPlayer === 1 ? secret2 : secret1;
-    let currentName = currentPlayer === 1 ? name1 : name2;
-
-    let bulls = 0, cows = 0;
-    for (let i = 0; i < 4; i++) {
-      if (guess[i] === opponentSecret[i]) {
-        bulls++;
-      } else if (opponentSecret.includes(guess[i])) {
-        cows++;
+    function saveSecret() {
+      const val = parseInput(document.getElementById("secretInput").value);
+      if (!isValid(val)) {
+        alert(`Enter ${digitLength} unique numbers from 1 to 9.`);
+        return;
       }
+      localStorage.setItem("secret1", JSON.stringify(val));
+      document.getElementById("secretArea").style.display = "none";
+      document.getElementById("gameArea").classList.remove("hidden");
+      startTimer();
     }
 
-    const log = document.getElementById("log");
-    const logEntry = document.createElement("div");
-    logEntry.textContent = `${currentName} guessed: ${guess} — 🐂 Bulls: ${bulls}, 🐄 Cows: ${cows}`;
-    log.prepend(logEntry);
+    function startTimer() {
+      timeLeft = 20;
+      document.getElementById("timer").textContent = timeLeft;
+      timer = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          autoPass();
+        }
+      }, 1000);
+    }
 
-    if (bulls === 4) {
-      document.getElementById("result").innerHTML = `<span class="winner">🎉 ${currentName} wins! The secret was ${opponentSecret}</span>`;
-      gameStarted = false;
+    function autoPass() {
+      document.getElementById("result").textContent = "⏱ Time’s up! Passing turn.";
+      setTimeout(() => {
+        localStorage.setItem("turn", "2");
+        window.location.href = "player2.html";
+      }, 2000);
+    }
+
+    function submitGuess() {
       clearInterval(timer);
-      return;
+      const guess = parseInput(document.getElementById("guessInput").value);
+      const secret2 = JSON.parse(localStorage.getItem("secret2") || "[]");
+      if (!isValid(guess) || secret2.length !== digitLength) {
+        alert("Invalid guess or opponent has not set secret yet.");
+        return;
+      }
+
+      let bulls = 0, cows = 0;
+      for (let i = 0; i < digitLength; i++) {
+        if (guess[i] === secret2[i]) bulls++;
+        else if (secret2.includes(guess[i])) cows++;
+      }
+
+      document.getElementById("log").innerHTML += `<p>Guessed: ${guess.join(" ")} → 🐂 ${bulls}, 🐄 ${cows}</p>`;
+      if (bulls === digitLength) {
+        document.getElementById("result").innerHTML = `<strong>🎉 You Win!</strong>`;
+        return;
+      }
+
+      localStorage.setItem("turn", "2");
+      setTimeout(() => window.location.href = "player2.html", 1000);
     }
-
-    switchTurn();
-  }
-
-  function switchTurn() {
-    currentPlayer = currentPlayer === 1 ? 2 : 1;
-    let nextName = currentPlayer === 1 ? name1 : name2;
-    document.getElementById("turnTitle").innerText = `${nextName}'s Turn`;
-    document.getElementById("guess").value = '';
-    document.getElementById("result").innerText = '';
-    startTimer();
-  }
-</script>
+  </script>
 
 </body>
 </html>
